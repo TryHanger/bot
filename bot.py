@@ -4,7 +4,7 @@ from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, InputMediaPhoto, FSInputFile, LabeledPrice, PreCheckoutQuery, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.filters.callback_data import CallbackData
-
+from pathlib import Path
 
 from db import init_db, get_user, add_star_referral, add_user, is_referral_counted, mark_referral_counted, get_referrals, get_referrals_paginated, update_user_balance
 from db import activate_vip, get_daily_bonus, get_autoclicker_reward
@@ -27,14 +27,12 @@ router = Router()
 dp.include_router(router)
 
 
-# photo = InputFile(path_or_bytesio="./images/menu.jpg")
-
 async def edit_main_menu(call: types.CallbackQuery, user_id: int):
     user = get_user(call.from_user.id)
     earned, withdrawn = user[7], user[8]
     earned = float(earned)
     withdrawn = float(withdrawn)
-    photo_path = r"image\main_menu.jpg"
+    photo_path = Path(__file__).parent / "image" / "main_menu.jpg"
     photo = FSInputFile(photo_path)
     text = (
         "✨ Добро пожаловать в главное меню ✨\n"
@@ -59,7 +57,7 @@ async def send_main_menu_with_photo(message: types.Message, user_id: int):
     earned, withdrawn = user[7], user[8]
     earned = float(earned)
     withdrawn = float(withdrawn)
-    photo_path = r"image\main_menu.jpg"
+    photo_path = Path(__file__).parent / "image" / "main_menu.jpg"
     photo = FSInputFile(photo_path)
     text = (
         "✨ Добро пожаловать в главное меню ✨\n"
@@ -229,8 +227,8 @@ async def show_ref_link(call: types.CallbackQuery, callback_data: RefCallback):
     kb.adjust(1)
 
     # Путь к локальному файлу с фото (например, у тебя в папке image)
-    photo_path = r"image\referal.jpg"
-    photo = FSInputFile(photo_path)  # Используй FSInputFile для локального файла
+    photo_path = Path(__file__).parent / "image" / "referal.jpg"
+    photo = FSInputFile(photo_path)
 
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
 
@@ -276,7 +274,7 @@ async def show_referrals_list(call: types.CallbackQuery, callback_data: RefCallb
     kb.button(text="⬅ Главное меню", callback_data="main_menu")
     kb.adjust(1)
 
-    photo_path = r"image\referal.jpg"
+    photo_path = Path(__file__).parent / "image" / "referal.jpg"
     photo = FSInputFile(photo_path)
 
     media = InputMediaPhoto(media=photo, caption=caption, parse_mode="Markdown")
@@ -289,7 +287,8 @@ async def show_referrals_list(call: types.CallbackQuery, callback_data: RefCallb
 @dp.callback_query(F.data == "farm")
 async def profile(call: types.CallbackQuery):
     user = get_user(call.from_user.id)
-    new_photo_path = r"image\profile.jpg"  # путь к файлу с фото
+    photo_path = Path(__file__).parent / "image" / "profile.jpg"
+    photo = FSInputFile(photo_path)  # путь к файлу с фото
 
     if user:
         stars = user[1]
@@ -327,7 +326,6 @@ async def profile(call: types.CallbackQuery):
     )
 
 
-    photo = FSInputFile(new_photo_path)  # вот тут важно указать path=
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
     await call.message.edit_media(media=media, reply_markup=farm_menu_keyboard())
 
@@ -339,7 +337,8 @@ async def profile(call: types.CallbackQuery):
 @dp.callback_query(F.data == "exchange_stars")
 async def profile(call: types.CallbackQuery):
     user = get_user(call.from_user.id)
-    new_photo_path = r"image\exchange_stars.jpg"
+    photo_path = Path(__file__).parent / "image" / "exchange_stars.jpg"
+    photo = FSInputFile(photo_path)
 
     kb = InlineKeyboardBuilder()
     kb.button(text="💸 Вывести 50⭐️", callback_data="withdraw_50")
@@ -364,7 +363,6 @@ async def profile(call: types.CallbackQuery):
         "<b>Выбери количество звёзд, которое хочешь обменять, из доступных вариантов ниже:</b>\n"
     )
     
-    photo = FSInputFile(new_photo_path)
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
     await call.message.edit_media(media=media, reply_markup=kb.as_markup())
 
@@ -456,7 +454,8 @@ async def decline_withdraw(call: types.CallbackQuery):
 
 @dp.callback_query(F.data == "booster")
 async def show_vip_menu(call: types.CallbackQuery):
-    photo = FSInputFile(r"image\vip.jpg")  # Картинка для VIP меню, если есть
+    photo_path = Path(__file__).parent / "image" / "vip.jpg"
+    photo = FSInputFile(photo_path)  # Картинка для VIP меню, если есть
 
     text = (
         "<b>🎖 Выбери свой VIP-пакет:</b>\n\n"
@@ -837,7 +836,8 @@ async def show_active_tasks(callback: CallbackQuery):
     kb.row(InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu"))
 
     # Фоновая картинка
-    photo = FSInputFile("image/profile.jpg")
+    photo_path = Path(__file__).parent / "image" / "profile.jpg"
+    photo = FSInputFile(photo_path)
 
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
     await callback.message.edit_media(
@@ -1184,8 +1184,8 @@ async def show_mini_games(call: types.CallbackQuery):
 
     text = "🎮 Выберите мини-игру:"
 
-    photo_path = r"image\games.jpg"  # локальный путь к фото
-    photo = FSInputFile(photo_path)  # используем FSInputFile для локального файла
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
+    photo = FSInputFile(photo_path)
 
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
     
@@ -1195,7 +1195,7 @@ async def show_mini_games(call: types.CallbackQuery):
 @dp.callback_query(lambda c: c.data == "game_dice")
 async def open_dice_menu(call: types.CallbackQuery):
     # Путь к фото для меню игры
-    photo_path = r"image\games.jpg"
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
     photo = FSInputFile(photo_path)
 
     # Текст описания игры
@@ -1248,7 +1248,7 @@ temp_bets = {}
 
 @dp.callback_query(lambda c: c.data == "game_coin")
 async def open_coin_menu(call: types.CallbackQuery):
-    photo_path = r"image\games.jpg"
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
     photo = FSInputFile(photo_path)
 
     text = (
@@ -1286,7 +1286,7 @@ async def choose_coin_side(call: types.CallbackQuery):
     temp_bets[user_id] = bet  # сохраняем ставку
 
     # Путь к картинке
-    photo_path = r"image\games.jpg"
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
     photo = FSInputFile(photo_path)
 
     # Текст для нового сообщения
@@ -1340,7 +1340,7 @@ async def flip_coin(call: types.CallbackQuery):
 
     del temp_bets[user_id]
 
-    photo_path = r"image\\games.jpg"
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
     photo = FSInputFile(photo_path)
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
 
@@ -1359,7 +1359,7 @@ async def flip_coin(call: types.CallbackQuery):
 
 @dp.callback_query(lambda c: c.data == "game_rps")
 async def open_rps_menu(call: types.CallbackQuery):
-    photo_path = r"image\games.jpg"
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
     photo = FSInputFile(photo_path)
 
     text = (
@@ -1399,9 +1399,9 @@ async def rps_choose_move(call: types.CallbackQuery):
     # сохраняем ставку
     temp_bets[user_id] = bet
 
-    photo_path = r"image\games.jpg"
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
     photo = FSInputFile(photo_path)
-
+    
     text = (
         f"✊✋✌ <b>КНБ</b>\n"
         f"Ставка: <b>{bet}⭐️</b>\n\n"
@@ -1486,7 +1486,7 @@ async def rps_play(call: types.CallbackQuery):
 
     temp_bets.pop(user_id, None)
 
-    photo_path = r"image\\games.jpg"
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
     photo = FSInputFile(photo_path)
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
 
@@ -1559,7 +1559,7 @@ async def rps_play(call: types.CallbackQuery):
 
     temp_bets.pop(user_id, None)
 
-    photo_path = r"image\\games.jpg"
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
     photo = FSInputFile(photo_path)
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
 
@@ -1628,7 +1628,8 @@ def finalize_result(player_hand, dealer_hand):
 
 @dp.callback_query(lambda c: c.data == "game_21")
 async def start_21(call: types.CallbackQuery):
-    photo = FSInputFile("image/games.jpg")
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
+    photo = FSInputFile(photo_path)
     text = "🃏 <b>Игра 21</b>\n\nВыберите ставку для начала игры."
 
     kb = InlineKeyboardBuilder()
@@ -1670,7 +1671,8 @@ async def update_blackjack_message(call, user_id, title):
     player_score = calculate_score(player)
     dealer_score = calculate_score(dealer)
 
-    photo = FSInputFile("image/games.jpg")
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
+    photo = FSInputFile(photo_path)
     text = (
         f"🃏 <b>Игра 21</b>\n"
         f"{title}\n\n"
@@ -1734,7 +1736,8 @@ async def finalize_blackjack(call, user_id, title):
 
     game_21(user_id, delta)  # обновление баланса
 
-    photo = FSInputFile("image/games.jpg")
+    photo_path = Path(__file__).parent / "image" / "games.jpg"
+    photo = FSInputFile(photo_path)
     text = (
         f"🃏 <b>Игра 21</b>\n{title}\n\n"
         f"Ваши карты: {player} (Очки: {calculate_score(player)})\n"

@@ -1,2 +1,4 @@
 bot.db
 tz.txt
+__pycache__/config.cpython-311.pyc
+__pycache__/db.cpython-311.pyc
