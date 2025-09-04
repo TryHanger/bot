@@ -2,3 +2,5 @@ bot.db
 tz.txt
 __pycache__/config.cpython-311.pyc
 __pycache__/db.cpython-311.pyc
+__pycache__/config_dev.cpython-311.pyc
+config_dev.py

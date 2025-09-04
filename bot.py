@@ -14,7 +14,7 @@ from config import API_TOKEN, CHANNEL_ID, ADMIN_IDS, PLAN_CONFIG_REFERRALS, BASE
 from config import DB_PATH, CLICK_DELAY, CLEANUP_DELAY, ADMIN_CHAT_PAYMENTS_ID, ADMIN_CHAT_TASKS_ID
 
 class RefCallback(CallbackData, prefix="ref"):
-    action: str  # "link" или "list"
+    action: str 
     user_id: int
     offset: int = 0
 
@@ -283,7 +283,6 @@ async def show_referrals_list(call: types.CallbackQuery, callback_data: RefCallb
 
 
 
-# @dp.callback_query(F.data == "profile")
 @dp.callback_query(F.data == "farm")
 async def profile(call: types.CallbackQuery):
     user = get_user(call.from_user.id)
@@ -315,16 +314,10 @@ async def profile(call: types.CallbackQuery):
         f"💰 Баланс: {stars:.2f}⭐️\n"
         f"👥 Рефералов: {refs}\n"
         "──────────────\n"
-        # "⬇️ Используй кнопки ниже для действий.\n"
         "\n"
-        # "<b>Промокоды на бесплатные звезды можно получить здесь ⬇️</b>\n"
-        # "t.me/careshram"
         "<b>🎁 Промокоды на бесплатные звезды:</b>\n"
         "➡️ <a href='https://t.me/careshram'>t.me/careshram</a>"
-
-
     )
-
 
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
     await call.message.edit_media(media=media, reply_markup=farm_menu_keyboard())
@@ -817,29 +810,31 @@ async def show_active_tasks(callback: CallbackQuery):
     text = "📋 <b>Доступные задания:</b>\n\n"
 
     if not tasks:
-        await callback.message.edit_text(
-            "❌ Сейчас нет активных заданий.",
-            parse_mode="HTML"
-        )
-        return
-
-    for task_id, title, description, reward in tasks:
-        text += (
-            f"📝 <b>{title}</b>\n"
-            f"📄 <i>{description}</i>\n"
-            f"💰 Награда: <b>{reward}⭐</b>\n\n"
-        )
-        kb.row(InlineKeyboardButton(text=f"✅ Сдать «{title}»", callback_data=f"submit_task_{task_id}"))
+        text = "❌ Сейчас нет активных заданий."
+    else:
+        for task_id, title, description, reward in tasks:
+            text += (
+                f"📝 <b>{title}</b>\n"
+                f"📄 <i>{description}</i>\n"
+                f"💰 Награда: <b>{reward}⭐</b>\n\n"
+            )
+            kb.row(
+                InlineKeyboardButton(
+                    text=f"✅ Сдать «{title}»",
+                    callback_data=f"submit_task_{task_id}"
+                )
+            )
 
     # Кнопки навигации
     kb.row(InlineKeyboardButton(text="⬅ Назад", callback_data="farm"))
     kb.row(InlineKeyboardButton(text="⬅ Главное меню", callback_data="main_menu"))
 
-    # Фоновая картинка
+    # Фоновая картинка (можно другую)
     photo_path = Path(__file__).parent / "image" / "profile.jpg"
     photo = FSInputFile(photo_path)
 
     media = InputMediaPhoto(media=photo, caption=text, parse_mode="HTML")
+
     await callback.message.edit_media(
         media=media,
         reply_markup=kb.as_markup()
