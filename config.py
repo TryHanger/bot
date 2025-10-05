@@ -1,6 +1,6 @@
 DB_PATH = "bot.db"
 
-API_TOKEN = "8421067032:AAGZcCVTnkw7c0LcgzH7zsPalr04M9BrQdE" # Токен бота
+API_TOKEN = "8440144113:AAFlN6ghtJM0oy9mW0cCwlhjWFzzBWX6bsc" # Токен бота
 CHANNEL_ID = "@Star_Fund"    # username канала, например @test_channel
 
 # Чат с выплатами
